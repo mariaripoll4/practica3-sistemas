@@ -1,0 +1,39 @@
+services:
+  mongo:
+    image: mongo:7.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  predict:
+    build: ./predict
+    ports:
+      - "3002:3002"
+    env_file:
+      - ./predict/.env
+    depends_on:
+      - mongo
+
+  acquire:
+    build: ./acquire
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./acquire/.env
+    depends_on:
+      - mongo
+
+  orchestrator:
+    build: ./orchestrator
+    container_name: orchestrator
+    ports:
+      - "8080:8080"
+    depends_on:
+      - acquire
+      - predict
+
+
+volumes:
+  mongo-data:
+
