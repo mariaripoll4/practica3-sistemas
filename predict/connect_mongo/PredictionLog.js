@@ -1,4 +1,4 @@
-// models_mongo/PredictionLog.js
+// connect_mongo/PredictionLog.js
 
 // Importamos mongoose, librería para conectar Node.js con MongDB
 const mongoose = require('mongoose');
