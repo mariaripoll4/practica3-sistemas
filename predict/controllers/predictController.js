@@ -3,27 +3,6 @@ const { getModelInfo, predict } = require("../services/tfModelService");
 const PredictionLog = require("../connect_mongo/PredictionLog");
 
 
-// FUNCION VICTORIA DEL TIEMPO IMPORTANTE
-// Si son 23:00 o más → predecimos mañana
-//Si no → predecimos hoy
-
-function getTargetDates() {
-  const now = new Date();
-  const target = new Date();
-
-  if (now.getHours() >= 23) {
-    target.setDate(target.getDate() + 1);
-  }
-
-  const time_end = new Date(target);
-  time_end.setDate(time_end.getDate() - 1);
-
-  const time_start = new Date(time_end);
-  time_start.setDate(time_start.getDate() - 3);
-
-  return { target, time_start, time_end };
-}
-
 function health(req, res) {
   res.json({
     status: "ok",

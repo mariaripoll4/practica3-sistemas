@@ -3,7 +3,7 @@ const router = express.Router();
 
 const { acquireData } = require("../controllers/acquireController");
 
-// Healthcheck
+// Health
 router.get("/health", (req, res) => {
   res.status(200).json({
     status: "ok",
@@ -11,7 +11,6 @@ router.get("/health", (req, res) => {
   });
 });
 
-// Endpoint oficial del contrato
 router.post("/data", acquireData);
 
 module.exports = router;

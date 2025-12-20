@@ -1,17 +1,25 @@
 const { fetchKunna } = require("../services/kunnaService");
 const AcquireLog = require("../models/AcquireLog");
 
-// --------------------------
 // 1. Función principal /data
-// --------------------------
+
 async function acquireData(req, res) {
   try {
-    // El contrato NO permite body → usamos últimos días automáticamente
     const now = new Date();
-    const timeEnd = now;
-    const timeStart = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000); // últimos 3 días
 
-    // 1) Llamar a Kunna
+        const target = new Date(now);
+    if (now.getHours() >= 23) {
+      target.setDate(target.getDate() + 1);
+    }
+
+    // 2. Calcular días completos anteriores
+    const timeEnd = new Date(target);
+    timeEnd.setDate(timeEnd.getDate() - 1);
+
+    const timeStart = new Date(timeEnd);
+    timeStart.setDate(timeStart.getDate() - 2); // 3 días exactos
+
+    // 1) Llamar a Kunna (peticion HTTP)
     const result = await fetchKunna(timeStart, timeEnd);
     const { columns, values } = result;
 
@@ -28,9 +36,8 @@ async function acquireData(req, res) {
       });
     }
 
-    // --------------------------
     // 2) Construir las 7 features
-    // --------------------------
+
     const consumo_t = dailyValues[dailyValues.length - 1];
     const consumo_t_1 = dailyValues[dailyValues.length - 2];
     const consumo_t_2 = dailyValues[dailyValues.length - 3];
@@ -51,9 +58,8 @@ async function acquireData(req, res) {
       dia_mes
     ];
 
-    // --------------------------
     // 3) Guardar en MongoDB
-    // --------------------------
+
     const saved = await AcquireLog.create({
       features,
       featureCount: 7,
@@ -61,9 +67,8 @@ async function acquireData(req, res) {
       createdAt: new Date()
     });
 
-    // --------------------------
     // 4) Respuesta EXACTA contrato
-    // --------------------------
+
     return res.status(201).json({
       dataId: saved._id,
       features: saved.features,
